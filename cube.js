@@ -42,8 +42,8 @@ const vertsKeys = Object.keys(verts)
 const edgeKeys = Object.keys(edges)
 
 function rotateX(theta) {
-    const sinTheta = Math.sin(theta)
-    const cosTheta = Math.cos(theta)
+    const sinTheta = Math.sin(-theta)
+    const cosTheta = Math.cos(-theta)
 
     for (let key of vertsKeys) {
         let vertex = verts[key]
@@ -57,8 +57,8 @@ function rotateX(theta) {
 }
 
 function rotateY(theta) {
-    const sinTheta = Math.sin(theta)
-    const cosTheta = Math.cos(theta)
+    const sinTheta = Math.sin(-theta)
+    const cosTheta = Math.cos(-theta)
 
     for (let key of vertsKeys) {
         let vertex = verts[key]
@@ -89,29 +89,39 @@ function rotateZ(theta) {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.lineWidth = 4
+    ctx.strokeStyle = "blue"
     for (let key of edgeKeys) {
         let fro = {
             x: verts[edges[key][0]][0],
-            y: verts[edges[key][0]][1]
+            y: verts[edges[key][0]][1],
+            z: verts[edges[key][0]][2]
         }
         let to = {
             x: verts[edges[key][1]][0],
-            y: verts[edges[key][1]][1]
+            y: verts[edges[key][1]][1],
+            z: verts[edges[key][1]][2],
         }
-
+        
         fro.x = fro.x * edgeLen + midX
         fro.y = fro.y * edgeLen + midY
-
+        
         to.x = to.x * edgeLen + midX
         to.y = to.y * edgeLen + midY
+        
+        let grad = ctx.createLinearGradient(fro.x, fro.y, to.x, to.y)
+        grad.addColorStop(0, `rgba(95,95,95,${(fro.z+1)/2+.65})`);
+        grad.addColorStop(1, `rgba(95,95,95,${(to.z+1)/2+.65})`);
+        ctx.strokeStyle = grad
 
         ctx.beginPath()
-
+        
         ctx.moveTo(fro.x, fro.y)
         ctx.lineTo(to.x, to.y)
 
         ctx.closePath()
         ctx.stroke()
+
+
     }
 }
 
