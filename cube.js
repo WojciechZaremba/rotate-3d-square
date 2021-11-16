@@ -12,7 +12,7 @@ let midY = screenY/2
 
 let edgeLen = 100
 
-let mSens = 100
+let mSens = 1
 
 const verts = {
     0: [-1,-1,-1],
