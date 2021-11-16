@@ -5,14 +5,17 @@ canvas.height = document.body.clientHeight; // use this instead of stretching it
 
 let screenY = canvas.height
 let screenX = canvas.width
-let ratio = screenX/screenY
+// let ratio = screenX/screenY
+// unused
 
 let midX = screenX/2
 let midY = screenY/2
 
+// maybe those will be modifiable in the future:
 let edgeLen = 100
-
 let mSens = 1
+let fog = .4
+let hue = 55
 
 const verts = {
     0: [-1,-1,-1],
@@ -49,7 +52,7 @@ function rotateX(theta) {
         let vertex = verts[key]
         let y = vertex[1]
         let z = vertex[2]
-
+        
         vertex[1] = y * cosTheta + z * sinTheta
         vertex[2] = z * cosTheta - y * sinTheta
     }
@@ -86,10 +89,10 @@ function rotateZ(theta) {
     draw()
 }
 
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.lineWidth = 4
-    ctx.strokeStyle = "blue"
     for (let key of edgeKeys) {
         let fro = {
             x: verts[edges[key][0]][0],
@@ -109,8 +112,11 @@ function draw() {
         to.y = to.y * edgeLen + midY
         
         let grad = ctx.createLinearGradient(fro.x, fro.y, to.x, to.y)
-        grad.addColorStop(0, `rgba(95,95,95,${(fro.z+1)/2+.65})`);
-        grad.addColorStop(1, `rgba(95,95,95,${(to.z+1)/2+.65})`);
+
+        let fogFro = (fro.z + 2) / 2 + fog
+        let fogTo = (to.z + 2) / 2 + fog
+        grad.addColorStop(0, `rgba(${hue},${hue},${hue},${fogFro})`);
+        grad.addColorStop(1, `rgba(${hue},${hue},${hue},${fogTo})`);
         ctx.strokeStyle = grad
 
         ctx.beginPath()
@@ -120,8 +126,6 @@ function draw() {
 
         ctx.closePath()
         ctx.stroke()
-
-
     }
 }
 
@@ -153,7 +157,7 @@ document.addEventListener("mouseup", () => {
 
 window.onresize = () => {
     canvas.width = document.body.clientWidth;
-    canvas.height = document.body.clientHeight; // use this instead of stretching it in CSS
+    canvas.height = document.body.clientHeight;
 
     screenY = canvas.height
     screenX = canvas.width
