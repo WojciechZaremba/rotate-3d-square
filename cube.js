@@ -17,32 +17,85 @@ let mSens = 1
 let fog = .4
 let hue = 55
 
-const verts = {
-    0: [-1,-1,-1],
-    1: [-1, 1,-1],
-    2: [ 1, 1,-1],
-    3: [ 1,-1,-1],
-    4: [-1,-1, 1],
-    5: [-1, 1, 1],
-    6: [ 1, 1, 1],
-    7: [ 1,-1, 1],
+/////////// CUBE ///////////
+const cube = {
+    vertices: {
+        0: [-1,-1,-1],
+        1: [-1, 1,-1],
+        2: [ 1, 1,-1],
+        3: [ 1,-1,-1],
+        4: [-1,-1, 1],
+        5: [-1, 1, 1],
+        6: [ 1, 1, 1],
+        7: [ 1,-1, 1],
+    },
+    edges: {
+        0: [0,1],
+        1: [0,3],
+        2: [0,4],
+        3: [2,1],
+        4: [2,3],
+        5: [2,6],
+        6: [5,1],
+        7: [5,4],
+        8: [5,6],
+        9: [7,3],
+        10: [7,4],
+        11: [7,6],
+    }
 }
-const edges = {
-    0: [0,1],
-    1: [0,3],
-    2: [0,4],
-    3: [2,1],
-    4: [2,3],
-    5: [2,6],
-    6: [5,1],
-    7: [5,4],
-    8: [5,6],
-    9: [7,3],
-    10: [7,4],
-    11: [7,6],
+
+///////// PIRAMIDE /////////
+const piramideFaceHeight = Math.sqrt(Math.pow(2,2) - Math.pow(1,2))
+const piramideHeight = Math.sqrt(Math.pow(2,2) - Math.pow(piramideFaceHeight*2/3,2))
+const piramide = {
+    vertices: {
+        0: [-1,
+            -piramideFaceHeight / 3,
+            -piramideHeight / 3],
+        1: [ 0, 
+            piramideFaceHeight * 2 / 3,
+            -piramideHeight / 3],
+        2: [ 1, 
+            -piramideFaceHeight / 3,
+            -piramideHeight / 3],
+        3: [ 0, 0, piramideHeight * 2 / 3],
+    },
+    edges: {
+        0: [0,1],
+        1: [0,2],
+        2: [0,3],
+        3: [1,2],
+        4: [1,3],
+        5: [2,3],
+    }
 }
-const vertsKeys = Object.keys(verts)
-const edgeKeys = Object.keys(edges)
+
+/////////// PAPER //////////
+const paper = {vertices: {}, edges: {}}
+let meridians = 4
+let longitudes = 5
+let wrinkle = {x: 1, y: 1}
+let paperCorner = [0 - (longitudes - 2) / 2, meridians / 2]
+
+for (let i = 0; i < longitudes; i++) {
+    for (let j = 0; j < meridians; j++) {
+        let x = paperCorner[0]
+        let y = paperCorner[1]
+        paper.vertices[j + i * meridians] = [x, y, Math.random() / 6]
+        paperCorner[0] += wrinkle.x
+    }
+    paperCorner[0] = -1.5
+    paperCorner[1] -= 1
+}
+
+
+let figure = piramide
+
+let verts = figure.vertices
+let edges = figure.edges
+let vertsKeys = Object.keys(verts)
+let edgeKeys = Object.keys(edges)
 
 function rotateX(theta) {
     const sinTheta = Math.sin(-theta)
@@ -129,9 +182,9 @@ function draw() {
     }
 }
 
-rotateX(-.2)
+rotateX(.9)
 rotateY(.3)
-rotateZ(.005)
+rotateZ(-.1)
 draw()
 
 let mousePos = [0,0]
