@@ -18,6 +18,8 @@ let fog = -.2
 let hue = 55
 
 let figure = figures[[Math.floor(Math.random()*figures.length)]]
+console.log(figure)
+
 
 let verts = figure.vertices
 let edges = figure.edges
@@ -25,51 +27,32 @@ let vertsKeys = Object.keys(verts)
 let edgeKeys = Object.keys(edges)
 edgeLen = 100 * figure.scale
 
-function setFigure(figure) {
-    figure = figure
-    verts = figure.vertices
-    edges = figure.edges
-    vertsKeys = Object.keys(verts)
-    edgeKeys = Object.keys(edges)
-    edgeLen = 100 * figure.scale
-    draw()
-}
-
 let angles = {
     x: 0,
     y: 0,
     z: 0
 }
 
-///
-setFigure(head)
-rotateX(Math.PI/2)
-angles.x = 0
-rotateX(-Math.PI/8)
+function setFigure(fig) {
+    figure = fig
+    verts = fig.vertices
+    edges = fig.edges
+    vertsKeys = Object.keys(verts)
+    edgeKeys = Object.keys(edges)
+    edgeLen = 100 * fig.scale
+    console.log(angles)
+    if (figure.initX === 90) {
+        rotateX(Math.PI/2)
+        angles.x = 0
+    }
+    draw()
+}
 
-let ang = .01
-console.log(angles.x)
-// let a = setInterval(()=>{
-//     let thatMuch = angles.x
-//     rotateX(-thatMuch)
-//     rotateY(ang)
-//     rotateX(thatMuch)
-
-//     // rotateX(ang)
-//     // console.log(Math.sin(angles.y))
-//     // console.log(angles.x)
-//     // rotateZ(ang * Math.sin(angles.y)*angles.x)
-//     // rotateZ(ang * Math.cos(angles.y/Math.PI))
-//     // rotateZ(-Math.PI/2)
-//     // rotateX(ang)
-
-//     draw()
-// },16)
-
+setFigure(figures[[Math.floor(Math.random()*figures.length)]])
+console.log(figure)
 
 
 function rotateX(theta) {
-    //console.log(theta)
     angles.x += theta
     const sinTheta = Math.sin(-theta)
     const cosTheta = Math.cos(-theta)
@@ -82,11 +65,11 @@ function rotateX(theta) {
         vertex[1] = y * cosTheta + z * sinTheta
         vertex[2] = z * cosTheta - y * sinTheta
     }
-    draw()
+    // draw()
 }
 
 function rotateY(theta) {
-    angles.y += theta
+    // angles.y += theta // don't need that
     const sinTheta = Math.sin(-theta)
     const cosTheta = Math.cos(-theta)
 
@@ -98,11 +81,11 @@ function rotateY(theta) {
         vertex[0] = x * cosTheta + z * sinTheta
         vertex[2] = z * cosTheta - x * sinTheta
     }
-    draw()
+    // draw()
 }
 
 function rotateZ(theta) {
-    angles.z += theta
+    // angles.z += theta // don't need that
     const sinTheta = Math.sin(theta)
     const cosTheta = Math.cos(theta)
 
@@ -114,7 +97,7 @@ function rotateZ(theta) {
         vertex[0] = x * cosTheta + y * sinTheta
         vertex[1] = y * cosTheta - x * sinTheta
     }
-    draw()
+    // draw()
 }
 
 
@@ -137,7 +120,6 @@ function draw() {
         fro.y = fro.y * edgeLen + midY
         to.x = to.x * edgeLen + midX
         to.y = to.y * edgeLen + midY
-        
         let grad = ctx.createLinearGradient(fro.x, fro.y, to.x, to.y)
 
         let fogFro = (fro.z + 2) / 2 + fog
@@ -145,6 +127,7 @@ function draw() {
         grad.addColorStop(0, `rgba(${hue},${hue},${hue},${fogFro})`);
         grad.addColorStop(1, `rgba(${hue},${hue},${hue},${fogTo})`);
         ctx.strokeStyle = grad
+        // ctx.strokeStyle = "red"
 
         ctx.beginPath()
         ctx.moveTo(fro.x, fro.y)
@@ -155,21 +138,55 @@ function draw() {
     }
 }
 
-// rotateX(.9)
-// rotateY(.3)
-// rotateZ(-.1)
 draw()
 
 let mousePos = [0,0]
 
 function moveListener(e) {
-    rotateY((mousePos[0]-e.offsetX)/200*mSens)
-    rotateX((mousePos[1]-e.offsetY)/200*mSens)
-    
-    mousePos[0] = e.offsetX
-    mousePos[1] = e.offsetY
+    // use X mouse to rotate in Y axis
+    // and vice-versa
+        let x = (mousePos[0]-e.offsetX)/200*mSens
+        let y = (mousePos[1]-e.offsetY)/200*mSens
 
+        if (figure.lockView) {
+            moveLocked(x, y)
+        } else {
+            rotateY(x)
+            rotateX(y)
+        }
+        mousePos[0] = e.offsetX
+        mousePos[1] = e.offsetY
+    // window.requestAnimationFrame(draw)
     draw()
+}
+
+function touchListener(e) {
+    e.preventDefault()
+    //console.log(mousePos)
+    //console.log(typeof e.changedTouches[0].pageX)
+    // use X mouse to rotate in Y axis
+    // and vice-versa
+    let x = Math.floor((mousePos[0]-e.changedTouches[0].pageX)/200*mSens)
+    let y = Math.floor((mousePos[1]-e.changedTouches[0].pageY)/200*mSens)
+
+    if (figure.lockView) {
+        moveLocked(x,y)
+    } else {
+        rotateY(y)
+        rotateX(x)
+    }
+    mousePos[0] = Math.floor(e.changedTouches[0].pageX)
+    mousePos[1] = Math.floor(e.changedTouches[0].pageY)
+// window.requestAnimationFrame(draw)
+draw()
+}
+
+function moveLocked(x, y) {
+    let thatMuch = angles.x
+    rotateX(-thatMuch)
+    rotateY(x)
+    rotateX(thatMuch)
+    rotateX(y)
 }
 
 document.addEventListener("mousedown", (e) => {
@@ -182,6 +199,18 @@ document.addEventListener("mouseup", () => {
     document.removeEventListener("mousemove", moveListener)
     document.querySelector("body").style.cursor = "pointer";
 })
+
+document.addEventListener("touchstart", (e) => {
+    mousePos[0] = e.offsetX
+    mousePos[1] = e.offsetY
+    document.addEventListener("touchmove", touchListener)
+    document.querySelector("body").style.cursor = "grab";
+})
+document.addEventListener("touchend", () => {
+    document.removeEventListener("mousemove", touchListener)
+    document.querySelector("body").style.cursor = "pointer";
+})
+
 
 window.onresize = () => {
     canvas.width = document.body.clientWidth;
@@ -196,28 +225,3 @@ window.onresize = () => {
 
     draw()
 }
-
-// function keysd(e) {
-//     console.log(e.key)
-//     if (e.key === "ArrowRight") {
-//         rotateZ(0.02)
-//     } else if (e.key === "ArrowLeft") {
-//         rotateZ(-0.02)
-//     } else if (e.key === "ArrowUp") {
-//         rotateX(0.06)
-//     } else if (e.key === "ArrowDown") {
-//         rotateX(-0.06)
-//     } else if (e.key === ",") {
-//         let thatMuch = angles.x
-//         rotateX(-thatMuch)
-//         rotateY(0.06)
-//         rotateX(thatMuch)
-//     } else if (e.key === ".") {
-//         let thatMuch = angles.x
-//         rotateX(-thatMuch)
-//         rotateY(-0.06)
-//         rotateX(thatMuch)
-//     }
-// }
-
-// window.addEventListener("keydown", keysd)
