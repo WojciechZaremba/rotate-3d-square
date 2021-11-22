@@ -45,20 +45,27 @@ let angles = {
 setFigure(head)
 rotateX(Math.PI/2)
 angles.x = 0
-rotateX(-Math.PI/2)
+rotateX(-Math.PI/8)
 
-let ang = .5
-// rotateY(ang)
-// rotateZ(-Math.sin(angles.x)*ang)
-// rotateX(-Math.cos(anglex.x)*ang)
-
+let ang = .01
+console.log(angles.x)
 // let a = setInterval(()=>{
+//     let thatMuch = angles.x
+//     rotateX(-thatMuch)
 //     rotateY(ang)
-//     rotateZ(-Math.PI/2)
-//     rotateX(ang)
+//     rotateX(thatMuch)
+
+//     // rotateX(ang)
+//     // console.log(Math.sin(angles.y))
+//     // console.log(angles.x)
+//     // rotateZ(ang * Math.sin(angles.y)*angles.x)
+//     // rotateZ(ang * Math.cos(angles.y/Math.PI))
+//     // rotateZ(-Math.PI/2)
+//     // rotateX(ang)
 
 //     draw()
-// },32)
+// },16)
+
 
 
 function rotateX(theta) {
@@ -75,6 +82,7 @@ function rotateX(theta) {
         vertex[1] = y * cosTheta + z * sinTheta
         vertex[2] = z * cosTheta - y * sinTheta
     }
+    draw()
 }
 
 function rotateY(theta) {
@@ -90,6 +98,7 @@ function rotateY(theta) {
         vertex[0] = x * cosTheta + z * sinTheta
         vertex[2] = z * cosTheta - x * sinTheta
     }
+    draw()
 }
 
 function rotateZ(theta) {
@@ -105,6 +114,7 @@ function rotateZ(theta) {
         vertex[0] = x * cosTheta + y * sinTheta
         vertex[1] = y * cosTheta - x * sinTheta
     }
+    draw()
 }
 
 
@@ -141,6 +151,7 @@ function draw() {
         ctx.lineTo(to.x, to.y)
         ctx.closePath()
         ctx.stroke()
+        
     }
 }
 
@@ -185,3 +196,28 @@ window.onresize = () => {
 
     draw()
 }
+
+// function keysd(e) {
+//     console.log(e.key)
+//     if (e.key === "ArrowRight") {
+//         rotateZ(0.02)
+//     } else if (e.key === "ArrowLeft") {
+//         rotateZ(-0.02)
+//     } else if (e.key === "ArrowUp") {
+//         rotateX(0.06)
+//     } else if (e.key === "ArrowDown") {
+//         rotateX(-0.06)
+//     } else if (e.key === ",") {
+//         let thatMuch = angles.x
+//         rotateX(-thatMuch)
+//         rotateY(0.06)
+//         rotateX(thatMuch)
+//     } else if (e.key === ".") {
+//         let thatMuch = angles.x
+//         rotateX(-thatMuch)
+//         rotateY(-0.06)
+//         rotateX(thatMuch)
+//     }
+// }
+
+// window.addEventListener("keydown", keysd)
