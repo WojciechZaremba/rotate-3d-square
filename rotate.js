@@ -194,12 +194,11 @@ document.addEventListener("mouseup", () => {
 ///////// mobile touch screen /////////////////
 document.addEventListener("touchmove", (e) => {
     touchListener(e)
-})
+}, {passive: false})
 document.addEventListener("touchstart", (e) => {
     mousePos[0] = e.targetTouches[0].pageX
     mousePos[1] = e.targetTouches[0].pageY
-})
-
+}, {passive: false})
 
 window.onresize = () => {
     canvas.width = document.body.clientWidth
@@ -211,3 +210,5 @@ window.onresize = () => {
     midY = screenY/2
     draw()
 }
+
+setFigure(deer)
