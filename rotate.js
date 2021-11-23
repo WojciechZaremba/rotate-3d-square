@@ -18,8 +18,6 @@ let fog = -.2
 let hue = 55
 
 let figure = figures[[Math.floor(Math.random()*figures.length)]]
-console.log(figure)
-
 
 let verts = figure.vertices
 let edges = figure.edges
@@ -33,23 +31,30 @@ let angles = {
     z: 0
 }
 
-function setFigure(fig) {
+function setFigure(fig = figures[[Math.floor(Math.random()*figures.length)]]) {
     figure = fig
     verts = fig.vertices
     edges = fig.edges
     vertsKeys = Object.keys(verts)
     edgeKeys = Object.keys(edges)
     edgeLen = 100 * fig.scale
-    console.log(angles)
-    if (figure.initX === 90) {
+
+    if (figure.initXYZ === 90) {
         rotateX(Math.PI/2)
         angles.x = 0
+        figure.initXYZ = "done"
+    } else if (typeof figure.initXYZ == "object") {
+        rotateX(figure.initXYZ[0])
+        rotateY(figure.initXYZ[1])
+        rotateZ(figure.initXYZ[2])
+        angles.x = 0
+        figure.initXYZ = "done"
     }
+
     draw()
 }
 
-setFigure(figures[[Math.floor(Math.random()*figures.length)]])
-console.log(figure)
+setFigure(figure)
 
 
 function rotateX(theta) {
@@ -210,5 +215,3 @@ window.onresize = () => {
     midY = screenY/2
     draw()
 }
-
-setFigure(deer)
