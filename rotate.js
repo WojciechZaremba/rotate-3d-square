@@ -65,7 +65,6 @@ function rotateX(theta) {
         vertex[1] = y * cosTheta + z * sinTheta
         vertex[2] = z * cosTheta - y * sinTheta
     }
-    // draw()
 }
 
 function rotateY(theta) {
@@ -81,7 +80,6 @@ function rotateY(theta) {
         vertex[0] = x * cosTheta + z * sinTheta
         vertex[2] = z * cosTheta - x * sinTheta
     }
-    // draw()
 }
 
 function rotateZ(theta) {
@@ -97,7 +95,6 @@ function rotateZ(theta) {
         vertex[0] = x * cosTheta + y * sinTheta
         vertex[1] = y * cosTheta - x * sinTheta
     }
-    // draw()
 }
 
 
@@ -120,21 +117,19 @@ function draw() {
         fro.y = fro.y * edgeLen + midY
         to.x = to.x * edgeLen + midX
         to.y = to.y * edgeLen + midY
-        let grad = ctx.createLinearGradient(fro.x, fro.y, to.x, to.y)
 
+        let grad = ctx.createLinearGradient(fro.x, fro.y, to.x, to.y)
         let fogFro = (fro.z + 2) / 2 + fog
         let fogTo = (to.z + 2) / 2 + fog
-        grad.addColorStop(0, `rgba(${hue},${hue},${hue},${fogFro})`);
-        grad.addColorStop(1, `rgba(${hue},${hue},${hue},${fogTo})`);
-        ctx.strokeStyle = grad
-        // ctx.strokeStyle = "red"
+        grad.addColorStop(0, `rgba(${hue},${hue},${hue},${fogFro})`)
+        grad.addColorStop(1, `rgba(${hue},${hue},${hue},${fogTo})`)
 
+        ctx.strokeStyle = grad
         ctx.beginPath()
         ctx.moveTo(fro.x, fro.y)
         ctx.lineTo(to.x, to.y)
         ctx.closePath()
         ctx.stroke()
-        
     }
 }
 
@@ -143,8 +138,7 @@ draw()
 let mousePos = [0,0]
 
 function moveListener(e) {
-    // use X mouse to rotate in Y axis
-    // and vice-versa
+    window.requestAnimationFrame(() => {
         let x = (mousePos[0]-e.offsetX)/200*mSens
         let y = (mousePos[1]-e.offsetY)/200*mSens
 
@@ -156,29 +150,24 @@ function moveListener(e) {
         }
         mousePos[0] = e.offsetX
         mousePos[1] = e.offsetY
-    // window.requestAnimationFrame(draw)
     draw()
+    })
 }
 
 function touchListener(e) {
-    e.preventDefault()
-    //console.log(mousePos)
-    //console.log(typeof e.changedTouches[0].pageX)
-    // use X mouse to rotate in Y axis
-    // and vice-versa
-    let x = Math.floor((mousePos[0]-e.changedTouches[0].pageX)/200*mSens)
-    let y = Math.floor((mousePos[1]-e.changedTouches[0].pageY)/200*mSens)
-
-    if (figure.lockView) {
-        moveLocked(x,y)
-    } else {
-        rotateY(y)
-        rotateX(x)
-    }
-    mousePos[0] = Math.floor(e.changedTouches[0].pageX)
-    mousePos[1] = Math.floor(e.changedTouches[0].pageY)
-// window.requestAnimationFrame(draw)
-draw()
+    window.requestAnimationFrame(()=> {
+        let x = (mousePos[0]-e.targetTouches[0].pageX)/200
+        let y = (mousePos[1]-e.targetTouches[0].pageY)/200
+        if (figure.lockView) {
+            moveLocked(x, y)
+        } else {
+            rotateX(y)
+            rotateY(x)
+        }
+        mousePos[0] = e.targetTouches[0].pageX
+        mousePos[1] = e.targetTouches[0].pageY
+        draw()
+    })
 }
 
 function moveLocked(x, y) {
@@ -189,39 +178,36 @@ function moveLocked(x, y) {
     rotateX(y)
 }
 
+////////// mouse events ///////////////////////
 document.addEventListener("mousedown", (e) => {
     mousePos[0] = e.offsetX
     mousePos[1] = e.offsetY
     document.addEventListener("mousemove", moveListener)
-    document.querySelector("body").style.cursor = "grab";
+    document.querySelector("body").style.cursor = "grab"
 })
 document.addEventListener("mouseup", () => {
     document.removeEventListener("mousemove", moveListener)
-    document.querySelector("body").style.cursor = "pointer";
+    document.querySelector("body").style.cursor = "pointer"
 })
 
-document.addEventListener("touchstart", (e) => {
-    mousePos[0] = e.offsetX
-    mousePos[1] = e.offsetY
-    document.addEventListener("touchmove", touchListener)
-    document.querySelector("body").style.cursor = "grab";
+
+///////// mobile touch screen /////////////////
+document.addEventListener("touchmove", (e) => {
+    touchListener(e)
 })
-document.addEventListener("touchend", () => {
-    document.removeEventListener("mousemove", touchListener)
-    document.querySelector("body").style.cursor = "pointer";
+document.addEventListener("touchstart", (e) => {
+    mousePos[0] = e.targetTouches[0].pageX
+    mousePos[1] = e.targetTouches[0].pageY
 })
 
 
 window.onresize = () => {
-    canvas.width = document.body.clientWidth;
-    canvas.height = document.body.clientHeight;
-
+    canvas.width = document.body.clientWidth
+    canvas.height = document.body.clientHeight
     screenY = canvas.height
     screenX = canvas.width
     ratio = screenX/screenY
-
     midX = screenX/2
     midY = screenY/2
-
     draw()
 }
