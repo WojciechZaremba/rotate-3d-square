@@ -1,1 +1,1 @@
-# Run index.html in a browser
+# Run index.html in the browser
