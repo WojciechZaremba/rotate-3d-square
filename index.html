@@ -15,15 +15,32 @@
             height: 100%;
             cursor: pointer;
             overscroll-behavior-y: contain;
+            transition: background 0.5s ease-out;
+            z-index: 1;
         }
-        /* canvas {
-            width: 500px;
-            height: 500px;
-        /* }  /* better use "canvas.width = document.body.clientWidth" in JS */
+        #dark {
+            position: fixed;
+            right: 49px;
+            top: 33px;
+            z-index: 0;
+        }
+        canvas {
+            position: relative;
+            z-index: 0;
+        }
+
     </style>
 </head>
 <body>
-    <!-- <canvas id="canvas"></canvas> -->
     <canvas id="canvas" width="300" height="300"></canvas>
+    <div id="dark">
+        <svg width="56" height="82">
+            <path d="M 55 3 
+                     A 40 40 0 1 0 55 79 
+                     40 40 0 0 1 55 3" 
+                  fill="rgba(230,230,230)"/>      
+            </svg>
+    </div>
+   
 </body>
 </html>

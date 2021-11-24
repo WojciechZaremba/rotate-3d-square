@@ -1,4 +1,5 @@
 const canvas = document.querySelector('#canvas');
+
 const ctx = canvas.getContext('2d');
 canvas.width = document.body.clientWidth;
 canvas.height = document.body.clientHeight; // use this instead of stretching it in CSS
@@ -25,20 +26,16 @@ let vertsKeys = Object.keys(verts)
 let edgeKeys = Object.keys(edges)
 edgeLen = 100 * figure.scale
 
-let angles = {
-    x: 0,
-    y: 0,
-    z: 0
-}
+let angles = {x: 0, y: 0, z: 0}
 
 function setFigure(fig = figures[[Math.floor(Math.random()*figures.length)]]) {
+    if (figure === fig) return setFigure()
     figure = fig
     verts = fig.vertices
     edges = fig.edges
     vertsKeys = Object.keys(verts)
     edgeKeys = Object.keys(edges)
     edgeLen = 100 * fig.scale
-
     if (figure.initXYZ === 90) {
         rotateX(Math.PI/2)
         angles.x = 0
@@ -50,10 +47,8 @@ function setFigure(fig = figures[[Math.floor(Math.random()*figures.length)]]) {
         angles.x = 0
         figure.initXYZ = "done"
     }
-
     draw()
 }
-
 setFigure(figure)
 
 
@@ -102,7 +97,6 @@ function rotateZ(theta) {
     }
 }
 
-
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.lineWidth = 4
@@ -138,12 +132,47 @@ function draw() {
     }
 }
 
+let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+
+function darkSwitch() {
+    if (darkMode) {
+        darkMode = !darkMode
+        hue = 140
+        document.getElementsByTagName("body")[0].style.backgroundColor = "#191919"
+        draw()
+    } else {
+        darkMode = !darkMode
+        hue = 55
+        document.getElementsByTagName("body")[0].style.backgroundColor = "ivory"
+        draw()
+    }
+}
+document.getElementsByTagName("body")[0].style.transition = "none"
+darkSwitch()
+setTimeout(() => {
+    document.getElementsByTagName("body")[0].style.transition = "background .9s ease-out"
+},0) // toss it to the event loop
+
 draw()
 
 let mousePos = [0,0]
+let isMouseMoving = false
+
+function mouseDownListener() {
+    isMouseMoving = false
+}
+
+function mouseUpListener() {
+    if (!isMouseMoving) {
+        setFigure()
+        isMouseMoving = false
+    }
+}
 
 function moveListener(e) {
     window.requestAnimationFrame(() => {
+        isMouseMoving = true
         let x = (mousePos[0]-e.offsetX)/200*mSens
         let y = (mousePos[1]-e.offsetY)/200*mSens
 
@@ -189,12 +218,13 @@ document.addEventListener("mousedown", (e) => {
     mousePos[1] = e.offsetY
     document.addEventListener("mousemove", moveListener)
     document.querySelector("body").style.cursor = "grab"
+    mouseDownListener()
 })
 document.addEventListener("mouseup", () => {
     document.removeEventListener("mousemove", moveListener)
     document.querySelector("body").style.cursor = "pointer"
+    mouseUpListener()
 })
-
 
 ///////// mobile touch screen /////////////////
 document.addEventListener("touchmove", (e) => {
