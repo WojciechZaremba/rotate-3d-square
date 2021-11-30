@@ -103,3 +103,5 @@ const figures = [cube, piramide, paper, earth, head, tube, deer]
 figures.forEach(figure => figure.lockView = false)
 head.lockView = true
 deer.lockView = true
+head.currX = 0
+deer.currX = 0

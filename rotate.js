@@ -1,4 +1,7 @@
 const canvas = document.querySelector('#canvas');
+const body = document.getElementsByTagName("body")[0]
+const dark = document.querySelector('#dark')
+const light = document.querySelector('#light')
 
 const ctx = canvas.getContext('2d');
 canvas.width = document.body.clientWidth;
@@ -26,7 +29,7 @@ let vertsKeys = Object.keys(verts)
 let edgeKeys = Object.keys(edges)
 edgeLen = 100 * figure.scale
 
-let angles = {x: 0, y: 0, z: 0}
+//let angles = {x: 0, y: 0, z: 0}
 
 function setFigure(fig = figures[[Math.floor(Math.random()*figures.length)]]) {
     if (figure === fig) return setFigure()
@@ -38,13 +41,15 @@ function setFigure(fig = figures[[Math.floor(Math.random()*figures.length)]]) {
     edgeLen = 100 * fig.scale
     if (figure.initXYZ === 90) {
         rotateX(Math.PI/2)
-        angles.x = 0
+        // angles.x = 0
+        figure.currX = 0
         figure.initXYZ = "done"
     } else if (typeof figure.initXYZ == "object") {
         rotateX(figure.initXYZ[0])
         rotateY(figure.initXYZ[1])
         rotateZ(figure.initXYZ[2])
-        angles.x = 0
+        // angles.x = 0
+        figure.currX = 0
         figure.initXYZ = "done"
     }
     draw()
@@ -53,7 +58,7 @@ setFigure(figure)
 
 
 function rotateX(theta) {
-    angles.x += theta
+    figure.currX += theta
     const sinTheta = Math.sin(-theta)
     const cosTheta = Math.cos(-theta)
 
@@ -134,24 +139,38 @@ function draw() {
 
 let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
 
-
-function darkSwitch() {
+function darkSwitch(onLoad) {
     if (darkMode) {
         darkMode = !darkMode
         hue = 140
-        document.getElementsByTagName("body")[0].style.backgroundColor = "#191919"
-        draw()
+        body.style.backgroundColor = "#191919"
+        if (onLoad) {
+            dark.style.opacity = "1"
+        } else {
+            setTimeout(()=>{dark.style.opacity = "1"},400)
+        } 
+        light.style.opacity = "0"
     } else {
         darkMode = !darkMode
         hue = 55
-        document.getElementsByTagName("body")[0].style.backgroundColor = "ivory"
-        draw()
+        body.style.backgroundColor = "ivory"
+        dark.style.opacity = "0"
+        if (onLoad) {
+            dark.style.opacity = "1"
+        } else {
+            setTimeout(()=>{light.style.opacity = "1"},400)
+        }
     }
+    draw()
 }
-document.getElementsByTagName("body")[0].style.transition = "none"
-darkSwitch()
+body.style.transition = "none"
+dark.style.transition = "none"
+light.style.transition = "none"
+darkSwitch(true)
 setTimeout(() => {
-    document.getElementsByTagName("body")[0].style.transition = "background .9s ease-out"
+    body.style.transition = "background .9s ease-out"
+    dark.style.transition = "opacity .5s ease-in"
+    light.style.transition = "opacity .5s ease-in"
 },0) // toss it to the event loop
 
 draw()
@@ -163,11 +182,14 @@ function mouseDownListener() {
     isMouseMoving = false
 }
 
-function mouseUpListener() {
-    if (!isMouseMoving) {
+function mouseUpListener(e) {
+    console.log(e.target.classList)
+    if (!isMouseMoving && !e.target.classList.contains('darklight')) {
         setFigure()
-        isMouseMoving = false
+    } else if (!isMouseMoving && e.target.classList.contains('darklight')) {
+        darkSwitch()
     }
+    isMouseMoving = false
 }
 
 function moveListener(e) {
@@ -205,7 +227,8 @@ function touchListener(e) {
 }
 
 function moveLocked(x, y) {
-    let thatMuch = angles.x
+    // let thatMuch = angles.x
+    let thatMuch = figure.currX
     rotateX(-thatMuch)
     rotateY(x)
     rotateX(thatMuch)
@@ -220,10 +243,10 @@ document.addEventListener("mousedown", (e) => {
     document.querySelector("body").style.cursor = "grab"
     mouseDownListener()
 })
-document.addEventListener("mouseup", () => {
+document.addEventListener("mouseup", (e) => {
     document.removeEventListener("mousemove", moveListener)
     document.querySelector("body").style.cursor = "pointer"
-    mouseUpListener()
+    mouseUpListener(e)
 })
 
 ///////// mobile touch screen /////////////////
