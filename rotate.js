@@ -1,4 +1,5 @@
 const canvas = document.querySelector('#canvas');
+const fade = document.querySelector('#fade');
 const body = document.getElementsByTagName("body")[0]
 const dark = document.querySelector('#dark')
 const light = document.querySelector('#light')
@@ -6,6 +7,9 @@ const light = document.querySelector('#light')
 const ctx = canvas.getContext('2d');
 canvas.width = document.body.clientWidth;
 canvas.height = document.body.clientHeight; // use this instead of stretching it in CSS
+const fadeCtx = fade.getContext('2d');
+fade.width = document.body.clientWidth;
+fade.height = document.body.clientHeight; // use this instead of stretching it in CSS
 
 let screenY = canvas.height
 let screenX = canvas.width
@@ -144,25 +148,20 @@ function darkSwitch(onLoad) {
         darkMode = !darkMode
         hue = 140
         body.style.backgroundColor = "#191919"
-        if (onLoad) {
-            dark.style.opacity = "1"
-        } else {
-            setTimeout(()=>{dark.style.opacity = "1"},400)
-        } 
         light.style.opacity = "0"
+        if (onLoad)dark.style.opacity = "1" 
+        else setTimeout(()=>{dark.style.opacity = "1"},400)
     } else {
         darkMode = !darkMode
         hue = 55
-        body.style.backgroundColor = "ivory"
+        body.style.backgroundColor = "white"
         dark.style.opacity = "0"
-        if (onLoad) {
-            dark.style.opacity = "1"
-        } else {
-            setTimeout(()=>{light.style.opacity = "1"},400)
-        }
+        if (onLoad)light.style.opacity = "1" 
+        else setTimeout(()=>{light.style.opacity = "1"},400)
     }
     draw()
 }
+
 body.style.transition = "none"
 dark.style.transition = "none"
 light.style.transition = "none"
@@ -175,6 +174,23 @@ setTimeout(() => {
 
 draw()
 
+function screenFade() {
+    if (!darkMode) fadeCtx.fillStyle = "#191919"
+    else fadeCtx.fillStyle = "#191919" 
+
+    fadeCtx.fillRect(0,0,canvas.width,canvas.height)
+    fade.style.zIndex = 2
+    fade.style.opacity = 1
+    return new Promise(res=>{
+        setTimeout(()=>{
+            fade.style.opacity = 0
+            setTimeout(()=>{fade.style.zIndex = 0},500) 
+            // time must be equal to the transition time
+            res()
+        },500)
+    })
+}
+
 let mousePos = [0,0]
 let isMouseMoving = false
 
@@ -183,9 +199,13 @@ function mouseDownListener() {
 }
 
 function mouseUpListener(e) {
-    console.log(e.target.classList)
-    if (!isMouseMoving && !e.target.classList.contains('darklight')) {
-        setFigure()
+    console.log(e.target.id)
+    if (!isMouseMoving && !e.target.classList.contains('darklight') && e.target.id !== "fade") {
+        (async function fadeScreenAndSetFigure() {
+            await screenFade()
+            setFigure()
+        })()
+
     } else if (!isMouseMoving && e.target.classList.contains('darklight')) {
         darkSwitch()
     }
@@ -263,6 +283,12 @@ window.onresize = () => {
     canvas.height = document.body.clientHeight
     screenY = canvas.height
     screenX = canvas.width
+
+    fade.width = document.body.clientWidth
+    fade.height = document.body.clientHeight
+    screenY = fade.height
+    screenX = fade.width
+
     ratio = screenX/screenY
     midX = screenX/2
     midY = screenY/2
