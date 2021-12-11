@@ -227,30 +227,31 @@ function mouseUpListener(e) {
 
 let isInertiaOn = false
 
+// repeated code here, can use animate() func instead?
 function inertia(e, 
                  n = 120, 
                  x = (mousePos[0]-e.offsetX)/200*mSens, 
                  y = (mousePos[1]-e.offsetY)/200*mSens) {
     if (isInertiaOn && n > 0 && (Math.abs(x) > 0.001 || Math.abs(y) > 0.001 )) {
-            // let x = (mousePos[0]-e.offsetX)/200*mSens
-            // let y = (mousePos[1]-e.offsetY)/200*mSens
-            if (figure.lockView) {
-                moveLocked(x, y)
-            } else {
-                rotateY(x)
-                rotateX(y)
-            }
-            draw() 
-            console.log(n)
-            //animate(e)
-            console.log(x,y, "inertia")
-            x = x/1.05
-            y = y/1.05
-
-            window.requestAnimationFrame(() => {
-                inertia(e, --n, x, y)
-            })
+        // let x = (mousePos[0]-e.offsetX)/200*mSens
+        // let y = (mousePos[1]-e.offsetY)/200*mSens
+        if (figure.lockView) {
+            moveLocked(x, y)
+        } else {
+            rotateY(x)
+            rotateX(y)
         }
+        draw() 
+        console.log(n)
+        //animate(e)
+        console.log(x,y, "inertia")
+        x = x/1.05
+        y = y/1.05
+
+        window.requestAnimationFrame(() => {
+            inertia(e, --n, x, y)
+        })
+    }
 }
 
 function animate(e) {
@@ -280,6 +281,7 @@ function moveListener(e) {
     })
 }
 
+// repeated code here, can use animate() func instead?
 function touchListener(e) {
     window.requestAnimationFrame(()=> {
         let x = (mousePos[0]-e.targetTouches[0].pageX)/200
@@ -290,8 +292,10 @@ function touchListener(e) {
             rotateX(y)
             rotateY(x)
         }
+        if (!isInertiaOn) {
         mousePos[0] = e.targetTouches[0].pageX
         mousePos[1] = e.targetTouches[0].pageY
+        }
         draw()
     })
 }
@@ -321,11 +325,25 @@ document.addEventListener("mouseup", (e) => {
 
 ///////// mobile touch screen /////////////////
 document.addEventListener("touchmove", (e) => {
-    touchListener(e)
+    window.requestAnimationFrame(()=>{
+        //console.log(e)
+        touchListener(e)  
+    })
 }, {passive: false})
 document.addEventListener("touchstart", (e) => {
+    isInertiaOn = false
     mousePos[0] = e.targetTouches[0].pageX
     mousePos[1] = e.targetTouches[0].pageY
+}, {passive: false})
+document.addEventListener("touchend", (e) => {
+    window.requestAnimationFrame(()=>{
+        // console.log(mousePos)
+        // console.log("End:", e.changedTouches[0].pageX, e.changedTouches[0].pageY)
+        let x = (mousePos[0] - e.changedTouches[0].pageX) / 200
+        let y = (mousePos[1] - e.changedTouches[0].pageY) / 200
+        isInertiaOn = true
+        inertia(e, 120, x, y)
+    })    
 }, {passive: false})
 
 window.onresize = () => {
