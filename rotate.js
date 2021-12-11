@@ -43,6 +43,8 @@ function setFigure(fig = figures[[Math.floor(Math.random()*figures.length)]]) {
     vertsKeys = Object.keys(verts)
     edgeKeys = Object.keys(edges)
     edgeLen = 100 * fig.scale
+    if (figure.fog) {fog = figure.fog
+    } else if (fog !== -.2) {fog = -.2}
     if (figure.initXYZ === 90) {
         rotateX(Math.PI/2)
         // angles.x = 0
@@ -133,6 +135,7 @@ function draw() {
         grad.addColorStop(1, `rgba(${hue},${hue},${hue},${fogTo})`)
 
         ctx.strokeStyle = grad
+        // ctx.strokeStyle = "red"
         ctx.beginPath()
         ctx.moveTo(fro.x, fro.y)
         ctx.lineTo(to.x, to.y)
@@ -196,27 +199,65 @@ let isMouseMoving = false
 
 function mouseDownListener() {
     isMouseMoving = false
+    isInertiaOn = false
 }
 
 function mouseUpListener(e) {
-    console.log(e.target.id)
-    if (!isMouseMoving && !e.target.classList.contains('darklight') && e.target.id !== "fade") {
-        (async function fadeScreenAndSetFigure() {
-            await screenFade()
-            setFigure()
-        })()
-
-    } else if (!isMouseMoving && e.target.classList.contains('darklight')) {
-        darkSwitch()
-    }
-    isMouseMoving = false
+    window.requestAnimationFrame(() => {
+        console.log(e.target.id)
+        // CLICKED TO CHANGE FIGURE
+        if (!isMouseMoving && !e.target.classList.contains('darklight') && e.target.id !== "fade") {
+            (async function fadeScreenAndSetFigure() {
+                await screenFade()
+                setFigure()
+            })() // ASYNC??
+        // CLICKED TO SWITCH DARKMODE
+        } else if (!isMouseMoving && e.target.classList.contains('darklight')) {
+            darkSwitch()
+        // DRAGGED TO ACCELERAT OBJECT
+        } else if (isMouseMoving && !e.target.classList.contains('darklight') && e.target.id !== "fade"
+                    && (e.offsetX !== mousePos[0] || e.offsetY !== mousePos[1])) {
+            console.log("move")
+            isInertiaOn = true
+            inertia(e)
+        }
+        isMouseMoving = false
+    })
 }
 
-function moveListener(e) {
+let isInertiaOn = false
+
+function inertia(e, 
+                 n = 120, 
+                 x = (mousePos[0]-e.offsetX)/200*mSens, 
+                 y = (mousePos[1]-e.offsetY)/200*mSens) {
+    if (isInertiaOn && n > 0 && (Math.abs(x) > 0.001 || Math.abs(y) > 0.001 )) {
+            // let x = (mousePos[0]-e.offsetX)/200*mSens
+            // let y = (mousePos[1]-e.offsetY)/200*mSens
+            if (figure.lockView) {
+                moveLocked(x, y)
+            } else {
+                rotateY(x)
+                rotateX(y)
+            }
+            draw() 
+            console.log(n)
+            //animate(e)
+            console.log(x,y, "inertia")
+            x = x/1.05
+            y = y/1.05
+
+            window.requestAnimationFrame(() => {
+                inertia(e, --n, x, y)
+            })
+        }
+}
+
+function animate(e) {
     window.requestAnimationFrame(() => {
-        isMouseMoving = true
         let x = (mousePos[0]-e.offsetX)/200*mSens
         let y = (mousePos[1]-e.offsetY)/200*mSens
+        //console.log(x,y,"animate")
 
         if (figure.lockView) {
             moveLocked(x, y)
@@ -224,9 +265,18 @@ function moveListener(e) {
             rotateY(x)
             rotateX(y)
         }
-        mousePos[0] = e.offsetX
-        mousePos[1] = e.offsetY
-    draw()
+        if (!isInertiaOn) {
+            mousePos[0] = e.offsetX
+            mousePos[1] = e.offsetY
+        }
+        draw() 
+    })
+}
+
+function moveListener(e) {
+    window.requestAnimationFrame(() => {
+        isMouseMoving = true
+        animate(e)
     })
 }
 
