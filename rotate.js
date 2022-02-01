@@ -179,7 +179,7 @@ draw()
 
 function screenFade() {
     if (!darkMode) fadeCtx.fillStyle = "#191919"
-    else fadeCtx.fillStyle = "#191919" 
+    else fadeCtx.fillStyle = "#DCDCDC" 
 
     fadeCtx.fillRect(0,0,canvas.width,canvas.height)
     fade.style.zIndex = 2
