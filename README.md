@@ -1,4 +1,4 @@
-This code can display different 3d figures with HTML canvas and pure JavaScript. No libraries were used.  
+This app can display different 3d figures with HTML canvas and pure JavaScript. No libraries were used.  
 Vertices are roteted around three axes with some trigonometric identity functions.  
 The figures can be either declared manually (not recomended for complex shapes), or extracted from Blender using this script: https://github.com/WojciechZaremba/print-vertices-and-edges-in-Blender  
   
