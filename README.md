@@ -5,7 +5,7 @@ The figures can be either declared manually (not recomended for complex shapes),
   Resources:  
   https://www.khanacademy.org/computing/computer-programming/programming-games-visualizations/programming-3d-shapes/a/rotating-3d-shapes
 
-  Models:
+  Models:  
   https://creazilla.com/nodes/1795198-low-poly-deer-head-3d-model  
   https://creazilla.com/nodes/65527-basic-head-mesh-3d-model  
   https://www.thingiverse.com/thing:2887291  
